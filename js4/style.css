@@ -1,0 +1,921 @@
+/* =================================== */
+/* STYLES DU DOSSIER 1 (Loader)      */
+/* =================================== */
+
+/* Réinitialisation simple */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    /* AJOUTS DU DOSSIER 2 */
+    padding: 0;
+    background-color: #000f16;
+    color: white;
+}
+
+/* AJOUT : Active le "Scroll Snap" en mode "proximité" */
+/* Cela guide le scroll sans le "casser" (mandatory) */
+html {
+    /* MODIFIÉ : "proximity" résout le "scroll trap" 
+       et rend le passage moins brusque. */
+    scroll-snap-type: y mandatory;
+}
+
+/* Le conteneur principal du loader.
+MODIFIÉ : Il est maintenant en 'row' (ligne) et non 'column'
+*/
+.loader {
+    /* AJOUT des variables de couleur */
+    --neon-red: #E13C4C;
+    --neon-red-glow: rgba(225, 60, 76, 0.7);
+    --neon-red-glow-light: rgba(225, 60, 76, 0.4);
+    --text-light: #fff;
+    --text-dark: #111;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    overflow: hidden;
+    z-index: 200; /* S'assure que le loader est au-dessus de la nav ET du canvas 3D */
+}
+
+/* NOUVEAU : Conteneur pour le texte à gauche */
+.text-container {
+    position: absolute;
+    top: 50%;
+    
+    /* * Positionne le BORD DROIT du conteneur de texte :
+     * 1. '50%' = Le centre de l'écran.
+     * 2. '+ 150px' = On décale vers la gauche (car 'right' augmente vers la gauche) 
+     * de la moitié de la largeur du spinner (300px / 2).
+     * 3. '+ 40px' = On ajoute l'écart (gap) souhaité.
+     */
+    right: calc(50% + 280px);
+    /* Centre verticalement le conteneur */
+    transform: translateY(-50%);
+    /* Optionnel : Aligne le texte à droite pour un look plus propre */
+    text-align: right; 
+}
+
+/* NOUVEAU : Conteneur pour l'animation à droite */
+.animation-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    
+    /* Centre parfaitement l'animation (horizontalement et verticalement) */
+    transform: translate(-50%, -50%) scale(0.6);
+}
+
+
+.spinner-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Le SVG qui contient les cercles
+MODIFIÉ : Augmentation de la taille
+*/
+.spinner {
+    width: 600px; /* MODIFIÉ : Plus grand (ancienne valeur 200px) */
+    height: 600px; /* MODIFIÉ : Plus grand (ancienne valeur 200px) */
+    transform-origin: center;
+}
+
+/* NOUVEAU : Style pour le cercle extérieur .path
+(r=48) -> 2 * PI * 48 = 301.6
+*/
+.path {
+    stroke-dasharray: 302;
+    stroke-dashoffset: 302;
+    opacity: 0;
+}
+
+/* MODIFIÉ : Style pour le cercle intérieur .inner-bars
+(r=38) -> 2 * PI * 38 = 238.7
+*/
+ .inner-bars line {
+    opacity: 0; /* Cache les lignes individuelles au début */
+}
+
+.inner-bars {
+    transform-box: fill-box;    
+    transform-origin: 50% 50%; /* Définit le centre de rotation */
+}
+
+/* Style pour les segments (r=45) */
+.segment {
+    opacity: 0; /* Invisible au début */
+    stroke-dasharray: 34 10;
+}
+
+/*
+MODIFIÉ : Remplacement de .central-graphic par .central-disk
+Il est plus grand et a un effet de reflet (radial-gradient)
+*/
+.central-disk {
+    position: absolute;
+    width: 80px; /* MODIFIÉ : Plus grand (ancienne valeur 50px) */
+    height: 80px; /* MODIFIÉ : Plus grand (ancienne valeur 50px) */
+    border-radius: 50%; /* Devient un cercle */
+    opacity: 0; /* Invisible au début */
+    
+    /* Effet de reflet/volume */
+    background: radial-gradient(circle at 50% 30%, 
+        rgba(255, 100, 100, 1), /* Point lumineux */
+        rgba(225, 60, 76, 1),   /* Couleur principale */
+        rgba(150, 0, 0, 1)      /* Ombre */
+    );
+    box-shadow: 0 4px 15px rgba(225, 60, 76, 0.4);
+}
+
+
+/* Le texte sous l'animation */
+.loader-text {
+    color: #FFF;
+    font-size: 2.4rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    opacity: 0; /* Invisible au début */
+
+    /* AJOUT : Aligne ce bloc comme le sous-titre */
+    display: inline-block;
+    width: 256px;       /* Même largeur que .loader-subtext */
+    text-align: left;   /* Même alignement que .loader-subtext */
+    
+    /* Optionnel : ajuste la marge basse si nécessaire */
+    margin-bottom: 8px; 
+}
+
+/* NOUVEAU : Style pour le sous-texte */
+.loader-subtext {
+    color: #E13C4C;
+    font-size: 0.96rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    opacity: 0; 
+    margin: 0;
+    margin-top: 6px;
+    
+    /* MODIFIÉ : Augmentation pour permettre 2 lignes */
+    min-height: 2.08rem; /* 1.2rem * 2 lignes + marge */
+    line-height: 1.04rem; /* Léger ajustement pour l'espacement */
+    
+    display: inline-block; 
+    
+    /* SUPPRIMÉ : Permet au texte d'aller à la ligne */
+    /* white-space: nowrap; */
+    
+    /* AJOUT : Force le texte interne à s'aligner à gauche */
+    text-align: left;
+    
+    /* AJOUT : Donne une largeur fixe au bloc */
+    width: 256px; 
+    
+    text-shadow: 0 0 4px rgba(225, 60, 76, 0.6), 
+                 0 0 8px rgba(255, 0, 0, 0.3);
+}
+
+/* NOUVEAU : Style pour le nom "Timm" */
+.highlight-name {
+    font-weight: 700; /* Met le texte en gras */
+    color: #E13C4C;   /* Couleur rouge de base */
+    
+    /* Effet de lueur néon */
+    text-shadow: 0 0 5px rgba(225, 60, 76, 0.7), 
+                 0 0 10px rgba(225, 60, 76, 0.5),
+                 0 0 18px rgba(255, 0, 0, 0.4);
+}
+
+/* NOUVEAU : Style pour le curseur "point rouge" */
+.text-cursor {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    /* MODIFIÉ : Devenu blanc pour contraster avec le texte rouge */
+    background-color: #E13C4C;
+    border-radius: 50%;
+    transform: translateY(1px);
+    margin-left: 5px;
+    
+    /* AJOUT : Effet de lueur sur le curseur lui-même */
+    box-shadow: 0 0 4px #E13C4C, 0 0 8px #E13C4C;
+    
+    animation: blinkDot 900ms infinite;
+}
+
+/* NOUVEAU : Keyframes pour le clignotement du point */
+@keyframes blinkDot {
+    0%   { opacity: 1; }
+    49%  { opacity: 1; }
+    50%  { opacity: 0; }
+    99%  { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+
+/* NOUVEAU : Conteneur pour le graphique en points */
+.dot-grid-container {
+    position: absolute;
+    /* Dimensions approx. pour la grille 10x10 */
+    width: 100px; 
+    height: 100px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    
+    /* Doit être invisible et réduit au début */
+    opacity: 0;
+    transform: scale(0);
+    transform-origin: center;
+}
+
+/* NOUVEAU : Style pour chaque point du graphique */
+.dot {
+    width: 4px;
+    height: 4px;
+    background-color: #E13C4C; /* Même couleur que le disque */
+    border-radius: 50%;
+    margin: 3px; /* Espace entre les points */
+}
+
+
+/* Le conteneur principal du scope (NON UTILISÉ, MAIS GARDÉ) */
+.scope-container {
+    display: none; 
+    opacity: 0;
+    width: 450px; /*60vmin*/
+    height: 450px;
+    max-width: 500px;
+    max-height: 500px;
+    /*background-color: transparent;*/
+    /* background-color: #080808;*/
+    background-color: transparent;
+    border-radius: 50%;
+    border: 4px solid #222;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), 
+                inset 0 0 20px rgba(0, 0, 0, 0.8);
+
+    position: absolute; 
+    top: 50%;           
+    left: 50%;          
+    transform: translate(-50%, -50%); 
+    
+    overflow: hidden;
+    filter: url(#neon-dots);
+    
+    z-index: 250; 
+}
+
+/* (STYLES DU SCOPE... non utilisés) */
+.line-grid,
+.dot-curve {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    filter: url(#neon-dots);
+}
+.grid-line {
+    stroke: #E13C4C;
+    stroke-width: 0.5;
+    transform-origin: 50% 50%;
+}
+#dot-path {
+    fill: none;
+    stroke: #FF6347;
+    stroke-width: 1.5;
+    stroke-dasharray: 1 4; 
+    stroke-linecap: round;
+}
+
+
+/* NOUVEAU : Barre de navigation */
+.main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(10, 10, 10, 0.7); /* Fond sombre semi-transparent */
+    backdrop-filter: blur(5px); /* Effet de flou (navigateurs modernes) */
+    
+    z-index: 300; /* Au-dessus de tout */
+    
+    padding: 8px 0;
+    opacity: 0; /* Commence cachée */
+}
+
+.main-nav ul {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Permet le retour à la ligne sur petits écrans */
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav li a {
+    color: #ccc;
+    text-decoration: none;
+    padding: 8px 12px;
+    font-size: 0.68rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.3s ease;
+}
+
+.main-nav li a:hover {
+    color: #E13C4C; /* Couleur rouge au survol */
+}
+
+
+/* =================================== */
+/* STYLES DU DOSSIER 2 (Scène 3D)     */
+/* =================================== */
+
+/* Le Canvas : C'est la partie la plus importante !
+  - 'position: fixed' le fixe à la fenêtre du navigateur.
+  - 'top: 0' et 'left: 0' le calent en haut à gauche.
+  - 'z-index: -1' le place EN DESSOUS de tout le reste (notre texte).
+*/
+#scene-3d {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2; /* RESTE EN ARRIÈRE-PLAN */
+    outline: none;
+}
+
+/* Styling des sections de contenu
+  On leur donne une hauteur minimale pour forcer le scroll.
+*/
+.content {
+    /* On utilise 100vh (viewport height) pour que chaque section
+       prenne la hauteur de l'écran */
+    min-height: 100vh; 
+    padding: 2rem;
+
+    box-sizing: border-box; /* Pour que le padding n'ajoute pas de hauteur */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    /* Assure que le contenu a un z-index par défaut (0 ou auto) 
+       qui sera AU-DESSUS du canvas (z-index: -1) */
+    position: relative;
+    z-index: 3;
+}
+
+.content h1 {
+    font-size: 3rem;
+}
+
+.content h2 {
+    font-size: 2rem;
+}
+
+
+#zone-1 {
+    /* Nécessaire pour positionner la vidéo à l'intérieur */
+    position: relative; 
+    /* Empêche la vidéo de déborder */
+    overflow: hidden; 
+    background-color: transparent;
+}
+
+/* NOUVEAU : Style pour la vidéo d'arrière-plan */
+#bg-video-z1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* Assure que la vidéo remplit l'espace sans se déformer */
+    object-fit: cover; 
+    
+    /* TRÈS IMPORTANT : Place la vidéo derrière le texte (H1, p) */
+    z-index: 1; 
+}
+
+
+/*
+AJOUT : Effet de passage (Snap)
+Ne s'applique qu'à la zone 1 et à la zone 2.
+*/
+#zone-1,
+#zone-1 + .content { /* Cible Z1 et Z2 */
+    scroll-snap-align: start;
+}
+
+/* =================================== */
+/* NOUVEAUX STYLES (Boutons Loader)   */
+/* =================================== */
+
+/* Conteneur pour les boutons, aligné avec le sous-titre */
+.loader-buttons-container {
+    /* Aligné avec .loader-subtext */
+    display: inline-block;
+    width: 256px; 
+    text-align: left;
+    
+    margin-top: 16px; /* Espace sous le sous-titre */
+    opacity: 0;
+}
+
+/* Rangée pour les boutons "tube" (Contact et Resume) */
+.btn-row {
+    display: flex;
+    justify-content: flex-start; /* Aligne les boutons à gauche */
+    gap: 10px; /* Espace entre les deux boutons */
+    margin-top: 12px; /* Espace sous le bouton LinkedIn */
+}
+
+/* --- Bouton 1: LinkedIn (Rond) --- */
+
+.btn-icon.btn-linkedin {
+    display: inline-flex; /* Permet de centrer le SVG */
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    
+    /* État initial: bordure néon, intérieur transparent */
+    background: transparent;
+    border: 1.5px solid var(--neon-red);
+    color: var(--neon-red); /* Couleur du logo */
+    
+    /* Effet néon sur la bordure */
+    box-shadow: 0 0 4px var(--neon-red-glow-light), 
+                0 0 8px var(--neon-red-glow),
+                /* Lueur intérieure */
+                inset 0 0 4px var(--neon-red-glow-light);
+    
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.btn-linkedin-svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor; /* Utilise la couleur du parent (var(--neon-red)) */
+    transition: all 0.3s ease;
+}
+
+/* Animation au survol (LinkedIn) */
+.btn-icon.btn-linkedin:hover {
+    /* 1. Grossissement */
+    transform: scale(1.1);
+    
+    /* 2. Intérieur rempli */
+    background: var(--neon-red);
+    
+    /* 3. Logo passe en blanc (ou noir, au choix) */
+    color: var(--text-light); /* Le SVG devient blanc */
+    
+    /* 4. Lueur plus intense */
+    box-shadow: 0 0 8px var(--neon-red-glow), 
+                0 0 16px var(--neon-red-glow);
+}
+
+
+/* --- Boutons 2 & 3: "Tube" (Commun) --- */
+
+.btn-tube {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 50px; /* Forme "tube" */
+    
+    font-size: 0.85rem; /* Ajusté à la nouvelle échelle */
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    
+    /* Bordure commune (même si l'une est transparente au début) */
+    border: 1.5px solid var(--neon-red);
+    
+    /* Transition pour le grossissement et la couleur */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.btn-icon-emoji {
+    margin-right: 6px;
+    font-size: 1.1em;
+    /* Petit ajustement vertical pour centrer l'émoji */
+    transform: translateY(1px); 
+}
+
+/* Bouton 2: Resume (Rempli) */
+.btn-resume {
+    background: var(--neon-red);
+    color: var(--text-light);
+    /* Lueur néon "pleine" */
+    box-shadow: 0 0 6px var(--neon-red-glow), 
+                0 0 12px var(--neon-red-glow-light);
+}
+
+/* Animation au survol (Resume) */
+.btn-resume:hover {
+    /* 1. Grossissement */
+    transform: scale(1.05);
+    /* 2. Lueur plus intense */
+    box-shadow: 0 0 10px var(--neon-red-glow), 
+                0 0 20px var(--neon-red-glow);
+}
+
+/* Bouton 3: Contact (Contour) */
+.btn-contact {
+    background: transparent;
+    color: var(--neon-red);
+    /* Lueur néon "contour" */
+    box-shadow: 0 0 4px var(--neon-red-glow-light), 
+                0 0 8px var(--neon-red-glow),
+                inset 0 0 4px var(--neon-red-glow-light);
+}
+
+/* Animation au survol (Contact) */
+.btn-contact:hover {
+    /* 1. Grossissement */
+    transform: scale(1.05);
+    
+    /* 2. Intérieur rempli */
+    background: var(--neon-red);
+    
+    /* 3. Texte passe en blanc */
+    color: var(--text-light);
+    
+    /* 4. Lueur plus intense (style "plein") */
+    box-shadow: 0 0 10px var(--neon-red-glow), 
+                0 0 20px var(--neon-red-glow);
+}
+
+.btn-next-loader {
+    position: absolute;
+    bottom: 40px;  /* Espace par rapport au bas */
+    right: 40px;   /* Espace par rapport à la droite */
+    z-index: 210;  /* S'assure qu'il est au-dessus du fond du loader */
+    
+    /* Caché au début, le JS le fera apparaître */
+    opacity: 0; 
+    box-shadow: 0 0 4px var(--neon-red-glow-light), 
+                0 0 8px var(--neon-red-glow),
+                inset 0 0 4px var(--neon-red-glow-light);
+}
+
+.btn-next-loader.is-hidden {
+    opacity: 0;
+    pointer-events: none; /* Désactive les clics pendant/après le fondu */
+}
+
+
+
+/* ========================================= */
+/* STYLE DES BORDURES "HUD" (GRID SYSTEM)    */
+/* ========================================= */
+
+:root {
+    /* Couleurs extraites de votre capture d'écran */
+    --grid-blue: rgba(88, 118, 135, 1);
+    /* --grid-blue: rgba(88, 118, 135, 0.6); Bleu grisâtre transparent */
+    --grid-gold: #cda47d;                 /* Doré/Beige */
+    --grid-margin: 2rem;                  /* Marge de 1rem demandée */
+}
+
+/* --- 1. LES LIGNES VERTICALES FIXES --- */
+.grid-line-vertical {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    /* Bordure pointillée bleue */
+    border-left: 1px dashed var(--grid-blue);
+    z-index: 10; /* Au-dessus du fond 3D, mais sous le contenu important */
+    pointer-events: none; /* Ne gêne pas les clics */
+}
+
+.grid-line-vertical.left {
+    left: var(--grid-margin);
+}
+
+.grid-line-vertical.right {
+    right: var(--grid-margin);
+}
+
+/* --- 2. LE SÉPARATEUR HORIZONTAL --- */
+.grid-divider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 98.7vw;
+    height: 60px; /* Hauteur du séparateur */
+    margin: -2rem 0; /* Espace autour du séparateur */
+    z-index: 11;
+}
+
+/* Les lignes horizontales (utilisent flex-grow pour prendre l'espace disponible) */
+.grid-line-horizontal {
+    flex-grow: 1;
+    height: 2px;
+    border-top: 1px dashed var(--grid-blue);
+    margin: 0 0px; /* Petit espace entre la ligne et le titre */
+    opacity: 1;
+}
+
+/* --- 3. LES CROIX "+" --- */
+.grid-cross {
+    position: absolute;
+    /*color: #7a9eb1;  Un bleu un peu plus clair pour les + */
+    color: #00f3ff;               /* Bleu clair néon */
+    text-shadow: 0 0 8px #00f3ff; /* Effet de lueur néon */
+    font-family: monospace; /* Police style "code" pour un + net */
+    font-weight: 300;
+    font-size: 1.4rem;
+    line-height: 1;
+    /* Centrage parfait du + sur les lignes */
+    transform: translate(-50%, 0px); 
+}
+
+.grid-cross.left {
+    left: var(--grid-margin); /* Alignement exact avec la ligne verticale gauche */    
+    transform: translate(-49%, -10%); /* Centre le "+" précisément sur le point */
+}
+
+.grid-cross.right {
+    right: var(--grid-margin); /* Alignement exact avec la ligne verticale droite */
+    transform: translate(40%, -10%); /* Centre le "+" précisément sur le point */
+}
+
+/* Coins SUPÉRIEURS (Haut-Gauche et Haut-Droit) pour TOUS les + */
+.grid-cross::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: -5px; right: -5px; /* S'étend sur toute la largeur + débord */
+    height: 6px;
+    /* Lignes verticales des crochets */
+    border-left: 1px solid var(--grid-blue);
+    border-right: 1px solid var(--grid-blue);
+    /* Lignes horizontales des crochets (dessinées avec des dégradés pour laisser un trou au milieu) */
+    background: 
+        linear-gradient(var(--grid-blue), var(--grid-blue)) top left / 6px 1px no-repeat,
+        linear-gradient(var(--grid-blue), var(--grid-blue)) top right / 6px 1px no-repeat;
+    opacity: 0.5;
+}
+
+/* Coins INFÉRIEURS (Bas-Gauche et Bas-Droit) pour TOUS les + */
+.grid-cross::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: -5px; right: -5px;
+    height: 6px;
+    /* Lignes verticales */
+    border-left: 1px solid var(--grid-blue);
+    border-right: 1px solid var(--grid-blue);
+    /* Lignes horizontales */
+    background: 
+        linear-gradient(var(--grid-blue), var(--grid-blue)) bottom left / 6px 1px no-repeat,
+        linear-gradient(var(--grid-blue), var(--grid-blue)) bottom right / 6px 1px no-repeat;
+    opacity: 0.5;
+}
+
+
+
+
+/* --- 4. LE TITRE AU CENTRE --- */
+.grid-title {
+    color: var(--grid-gold);
+    font-family: sans-serif; /* Remplacez par votre police (ex: 'Rajdhani', 'Orbitron') */
+    font-weight: 400;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 0 10px;
+    white-space: nowrap; /* Empêche le titre de passer sur 2 lignes */
+    
+    display: flex;
+    align-items: center;
+}
+
+/* Le petit carré doré avant le titre */
+.gold-square {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--grid-gold);
+    margin-right: 12px;
+    box-shadow: 0 0 8px rgba(205, 164, 125, 0.4); /* Légère lueur dorée */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =================================== */
+/* STYLE CERTIFICATIONS : DATA NODE (HORIZONTAL) */
+/* =================================== */
+
+/* 1. CONTENEUR PRINCIPAL */
+.cert-node-container.horizontal-layout {
+    width: 90%;
+    max-width: 1400px; /* Beaucoup plus large */
+    
+    margin: 5rem auto 5rem auto;       
+    
+    display: flex;
+    align-items: center;    
+    justify-content: center;
+    perspective: 1000px;
+}
+
+/* 2. TÊTE DU TERMINAL (Bloc Gauche) */
+.cert-terminal-head {
+    /* Fixe une largeur pour ce bloc */
+    flex: 0 0 550px; 
+    background: #0b1015;
+    border: 1px solid #2d3b42;
+    padding: 35px;
+    position: relative;
+    z-index: 10;
+    
+    /* Forme technique */
+    clip-path: polygon(
+        20px 0, 100% 0, 
+        100% calc(100% - 20px), calc(100% - 20px) 100%, 
+        0 100%, 0 20px
+    );
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    transition: border-color 0.3s;
+}
+.cert-terminal-head:hover { border-color: var(--hud-cyan); }
+
+/* Styles internes (inchangés) */
+.terminal-header-line {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 15px; font-family: monospace; font-size: 0.8rem;
+    color: #587687; border-bottom: 1px dashed #2d3b42; padding-bottom: 5px;
+}
+.term-icon { color: var(--hud-cyan); margin-right: 5px; }
+.term-status { 
+    color: var(--neon-red); border: 1px solid var(--neon-red);
+    padding: 1px 6px; font-size: 0.65rem; border-radius: 2px;
+}
+.cert-terminal-head.unlocked .term-status {
+    color: var(--hud-cyan); border-color: var(--hud-cyan);
+}
+.term-title { color: #fff; font-family: sans-serif; font-size: 1.5rem; margin: 0 0 15px 0; text-transform: uppercase; }
+.term-body-text p { color: #e5e5e5; font-size: 0.9rem; line-height: 1.5; margin-bottom: 10px; }
+
+/* --- NOUVEAU : Style du lien Encryption --- */
+.encryption-link {
+    color: var(--hud-cyan);
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+.encryption-link:hover {
+    background: rgba(0, 243, 255, 0.2);
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+/* 3. BOUTON DÉCLENCHEUR */
+.cert-trigger-btn {
+    width: 100%;
+    background: rgba(0, 243, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.3);
+    color: var(--hud-cyan); padding: 12px; margin-top: 15px;
+    cursor: pointer; font-family: monospace; font-weight: bold; text-transform: uppercase;
+    position: relative; overflow: hidden; transition: all 0.3s;
+}
+.cert-trigger-btn:hover {
+    background: rgba(0, 243, 255, 0.15); letter-spacing: 2px;
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+}
+.btn-scan-line {
+    position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0,243,255,0.4), transparent);
+    transform: skewX(-20deg); animation: btnScan 3s infinite linear;
+}
+
+/* 4. CONTENEUR DE LIENS (TIROIR DROIT) */
+.cert-links-wrapper {
+    /* Disposition Horizontal */
+    display: flex;
+    align-items: center; /* Centre le connecteur verticalement */
+
+    /* Animation sur la Largeur (Width) et non la hauteur */
+    max-width: 0; 
+    opacity: 0;
+    overflow: hidden; /* Important pour cacher le contenu pendant l'anim */
+    
+    /* Transition */
+    transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    
+    /* Ne pas passer à la ligne */
+    white-space: nowrap; 
+}
+
+/* Classe "open" ajoutée par JS */
+.cert-links-wrapper.open {
+    max-width: 600px; /* Largeur suffisante pour afficher les boutons */
+    opacity: 1;
+    margin-left: 0px;
+}
+
+/* Connecteur Horizontal */
+.connector-line-horizontal {
+    width: 40px; /* Longueur du trait */
+    height: 2px;
+    background: #2d3b42;
+    flex-shrink: 0; /* Ne pas écraser le trait */
+}
+.cert-links-wrapper.open .connector-line-horizontal { background: var(--hud-cyan); }
+
+/* Le bloc qui contient les boutons (pour mettre un fond) */
+.links-inner-group {
+    background: rgba(5, 10, 15, 0.9);
+    border: 1px solid #2d3b42;
+    padding: 15px;
+    display: flex;
+    flex-direction: column; /* Les boutons restent les uns sous les autres */
+    min-width: 300px;
+    border-left: none; /* Connecté visuellement */
+}
+
+/* 5. BOUTONS LIENS INDIVIDUELS */
+.cert-link-node {
+    display: flex; align-items: center;
+    background: rgba(255, 255, 255, 0.03); border: 1px solid #2d3b42;
+    margin: 5px 0; padding: 10px;
+    text-decoration: none; transition: all 0.2s;
+}
+.cert-link-node:hover {
+    background: rgba(0, 243, 255, 0.1); border-color: var(--hud-cyan);
+    transform: translateX(5px);
+}
+.node-decor {
+    font-family: monospace; font-size: 1.2rem; color: #2d3b42;
+    font-weight: bold; margin-right: 15px; border-right: 1px solid #2d3b42; padding-right: 10px;
+}
+.cert-link-node:hover .node-decor { color: var(--hud-cyan); border-right-color: var(--hud-cyan); }
+.node-content { display: flex; flex-direction: column; flex: 1; }
+.node-title { color: #fff; font-weight: bold; font-size: 0.95rem; }
+.node-meta { color: #666; font-size: 0.75rem; font-family: monospace; }
+.node-arrow { color: #587687; font-size: 1.2rem; transition: transform 0.3s; }
+.cert-link-node:hover .node-arrow { color: var(--hud-cyan); transform: translateX(5px); }
+
+/* RESPONSIVE : Sur mobile, on repasse en vertical sinon ça sort de l'écran */
+@media (max-width: 768px) {
+    .cert-node-container.horizontal-layout {
+        flex-direction: column;
+        align-items: center;
+        margin: 0 auto;
+    }
+    .cert-terminal-head { flex: auto; width: 90%; }
+    .cert-links-wrapper { flex-direction: column; max-width: 90%; max-height: 0; transition: max-height 0.5s; }
+    .cert-links-wrapper.open { max-width: 90%; max-height: 500px; }
+    .connector-line-horizontal { width: 2px; height: 30px; margin: 0 auto; }
+    .links-inner-group { border-left: 1px solid #2d3b42; }
+}
+
+
+
+
+/* --- CORRECTIF ESPACEMENT SECTIONS --- */
+
+/* Cible toutes les sections sauf Zone 1 et 2 qui doivent rester grandes */
+#about, 
+#certs,
+#skills, 
+#tools, 
+#domains, 
+#references, 
+#contact,
+/* Si tes sections n'ont pas d'ID, tu peux utiliser cette classe générique */
+.content-auto {
+    min-height: auto !important; /* Annule le 100vh */
+    padding: 4rem 0; /* Espace interne : 4rem en haut/bas, 0 sur les côtés */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
