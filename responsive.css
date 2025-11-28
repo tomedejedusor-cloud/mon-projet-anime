@@ -462,7 +462,9 @@
     /* On force le conteneur à être un carré parfait */
     .about-me-image .neon-circle-image {
         width: 200px !important;  /* Taille fixe pour mobile */
-        height: 200px !important; /* MÊME valeur que width pour faire un rond */
+        /*height: 200px !important;  MÊME valeur que width pour faire un rond */
+        height: auto !important;   /* Ajoute ça */
+        aspect-ratio: 1 / 1;       /* Ajoute ça par sécurité */
         border-radius: 50% !important;
         overflow: hidden !important; /* Masque tout ce qui sort du rond */
         margin: 0 auto 20px auto !important; /* Centre le tout */
@@ -519,8 +521,12 @@
         /* Réduit la marge du bas (C'était 5rem sur PC) */
         margin-bottom: 0px !important; 
         
-        /* Ajustement de la hauteur de la map sur mobile (optionnel mais conseillé) */
-        height: 500px !important; 
+        /* Ajustement de la hauteur de la map sur mobile (optionnel mais conseillé) 
+        height: 500px !important; */
+        width: 100% !important; /* Pleine largeur sur mobile */
+        aspect-ratio: 4 / 3 !important;
+        border-left: none;
+        border-right: none;
     }
 
     /* Ajustement du bouton "See All" pour qu'il soit centré sous la liste */

@@ -30,7 +30,8 @@
 
 .neon-circle-image {
     width: 120px; /* Taille du cercle (diamètre) */
-    height: 120px;
+    height: auto; /* 120px;*/
+    aspect-ratio: 1 / 1; /* Force le carré PARFAIT immédiatement */
     border-radius: 50%; /* Rend l'élément circulaire */
     
     /* Positionnement relatif pour le pseudo-élément (bordure intérieure) */
@@ -306,8 +307,16 @@
     /* Centrage automatique */
     margin: 0 auto; 
     
-    /* Hauteur de l'écran */
-    height: 500px; 
+    /* Hauteur de l'écran 
+    height: 500px; */
+    width: 90%; /* On prend 90% de la largeur dispo */
+    max-width: 1000px;
+    aspect-ratio: 16 / 9; 
+    height: auto; /* Laisse le ratio décider */
+
+
+
+
     margin-bottom: 5rem;
     
     background: #000;
@@ -369,7 +378,7 @@
 .screen-media-container img {
     width: 100%;
     height: 100%;
-    object-fit: cover; 
+    object-fit: contain; 
     display: block;
     opacity: 0.8;
 }
@@ -379,7 +388,7 @@
     width: 100%;
     height: 100%;
     /* C'est ici que la magie opère : 'contain' affiche toute la vidéo */
-    object-fit: cover; 
+    object-fit: contain; 
     display: block;
     opacity: 0.9; /* Un peu plus visible que les images */
     background-color: #000; /* Ajoute des bandes noires si le ratio est différent */

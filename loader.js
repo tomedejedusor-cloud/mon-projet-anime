@@ -660,11 +660,11 @@ document.addEventListener("DOMContentLoaded", function() {
             "Neural Networks and <br> Machine Learning",
             "Image processing is brilliant",
             "Like programmation ... ",
-            "I eat Java Script",
+            "I love Java Script",
             "I am a hard worker",
             "I am an enthusiastic <br> programmer", 
             "Otherwise, <br> I have hobbies",
-            "A robotics club"
+            "A robotics club <br> and sports"
         ];
         let subtextIndex = 0;
         const subtextTarget = document.querySelector('.loader-subtext');

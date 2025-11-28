@@ -370,4 +370,31 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 
+
+    /* Optimisation : Pause vidéo intelligente */
+    const bgVideo = document.getElementById('bg-video-z1');
+    const zone1 = document.getElementById('zone-1'); // Le conteneur de la vidéo
+
+    if (bgVideo && zone1) {
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Si la zone 1 n'est plus visible (ratio 0), on pause
+                if (!entry.isIntersecting) {
+                    bgVideo.pause();
+                    // Optionnel : on peut réduire la charge 3D ici aussi si besoin
+                } else {
+                    // Si on revient dessus, on relance
+                    bgVideo.play().catch(e => console.log("Lecture auto bloquée par le navigateur"));
+                }
+            });
+        }, { 
+            threshold: 0.1 // Se déclenche quand il ne reste que 10% de la vidéo visible
+        });
+
+        videoObserver.observe(zone1);
+    }
+
+
+
+
 });

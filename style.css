@@ -354,6 +354,7 @@ Il est plus grand et a un effet de reflet (radial-gradient)
     height: 100vh;
     z-index: 2; /* RESTE EN ARRIÈRE-PLAN */
     outline: none;
+    will-change: transform;
 }
 
 /* Styling des sections de contenu
@@ -408,7 +409,12 @@ Il est plus grand et a un effet de reflet (radial-gradient)
     /* TRÈS IMPORTANT : Place la vidéo derrière le texte (H1, p) */
     z-index: 1; 
 }
-
+#zone-1, #bg-video-z1 {
+    /* Dit au navigateur : "Cet élément va bouger ou changer, prépare le GPU" */
+    will-change: transform, opacity;
+    /* Force le calcul sur la carte graphique */
+    transform: translateZ(0); 
+}
 
 /*
 AJOUT : Effet de passage (Snap)
