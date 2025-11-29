@@ -654,11 +654,11 @@ document.addEventListener("DOMContentLoaded", function() {
         /* --- ANIMATION DE SOUS-TITRE (Effet Machine à écrire) --- */
         // ... (votre code typeEffect reste ici, inchangé) à la ligne : <br>
         const subtexts = [
-            "I'm an engineer student",
+            "I am an engineering student.",
             "I'm a developer",
             "A Creative Developer",
             "I study mechatronics <br> and robotics",
-            "I work on embedded AI", 
+            "I work on AI", 
             "Neural Networks and <br> Machine Learning",
             "Image processing is brilliant",
             "Like programmation ... ",

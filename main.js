@@ -6,6 +6,45 @@
 // Attend que toute la page soit chargée
 document.addEventListener("DOMContentLoaded", function() {
 
+    /* =================================== */
+    /* 0. PRÉCHARGEMENT DES VIDÉOS (NOUVEAU) */
+    /* =================================== */
+    function preloadTacticalVideos() {
+        console.log("Démarrage du préchargement des vidéos tactiques...");
+        const videoCards = document.querySelectorAll('.hud-card[data-type="video"]');
+        
+        // Détection mobile pour éviter de tuer le forfait data
+        // Si tu as bien compressé tes vidéos (< 2Mo), tu peux enlever cette condition
+        const isMobile = window.innerWidth < 768; 
+        
+        videoCards.forEach(card => {
+            const videoUrl = card.dataset.src;
+            
+            if (videoUrl) {
+                // On utilise 'fetch' pour récupérer le fichier complet
+                fetch(videoUrl)
+                    .then(response => response.blob()) // On le transforme en "Blob" (objet binaire)
+                    .then(videoBlob => {
+                        // On crée une URL locale (ex: blob:http://monsite/1234-5678...)
+                        const objectUrl = URL.createObjectURL(videoBlob);
+                        
+                        // MAGIE : On remplace l'URL distante par l'URL locale en mémoire
+                        // Quand l'utilisateur cliquera, ce sera INSTANTANÉ.
+                        card.dataset.src = objectUrl;
+                        
+                        console.log(`Vidéo préchargée en mémoire : ${videoUrl}`);
+                    })
+                    .catch(err => console.error("Erreur préchargement vidéo", err));
+            }
+        });
+    }
+
+    // On lance le préchargement tout de suite, pendant que le loader tourne
+    preloadTacticalVideos();
+
+
+
+
     // 1. Cherche TOUS les panneaux cliquables
     const clickablePanels = document.querySelectorAll('.panel-2d--clickable');
     const clickableCircleImages = document.querySelectorAll('.neon-circle-image--clickable');
@@ -338,36 +377,96 @@ document.addEventListener("DOMContentLoaded", function() {
     /* LOGIQUE SKILLS (NEURAL GRID)        */
     /* =================================== */
 
-    const neuralNodes = document.querySelectorAll('.neural-node');
+    // const neuralNodes = document.querySelectorAll('.neural-node');
 
-    if (neuralNodes.length > 0) {
+    // if (neuralNodes.length > 0) {
+    //     const observerOptions = {
+    //         threshold: 0.1 
+    //     };
+
+    //     const nodesObserver = new IntersectionObserver((entries, observer) => {
+    //         entries.forEach((entry, index) => {
+    //             if (entry.isIntersecting) {
+    //                 setTimeout(() => {
+    //                     entry.target.style.opacity = "1";
+    //                     entry.target.style.transform = "translateY(0)";
+    //                 }, index * 100); 
+
+    //                 observer.unobserve(entry.target);
+    //             }
+    //         });
+    //     }, observerOptions);
+
+    //     neuralNodes.forEach(node => {
+    //         node.style.opacity = "0";
+    //         node.style.transform = "translateY(20px)";
+    //         node.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+            
+    //         nodesObserver.observe(node);
+    //     });
+    // }
+
+
+    /* =================================== */
+    /* LOGIQUE D'APPARITION UNIFIÉE        */
+    /* (Skills, Tools, Domains, Refs...)   */
+    /* =================================== */
+
+    // 1. Liste de tous les éléments à animer
+    const animatedElements = document.querySelectorAll(
+        '.neural-node, ' +          // Section Skills (Grid)
+        '.mission-file, ' +         // section stages
+        '.cert-node-container, ' +  // Section Certifications (Le gros bloc)
+        '.skill-card, ' +           // Section Tools (Les cartes rectangulaires)
+        '.domain-card, ' +          // Section Domains (Les cartes carrées dorées)
+        '.ref-card, ' +             // Section References (Les avis)
+        '.contact-terminal'         // Section Contact (Le terminal final)
+    );
+
+    if (animatedElements.length > 0) {
         const observerOptions = {
-            threshold: 0.1 // Déclenche dès que 10% est visible
+            threshold: 0.3 // Déclenche dès que 10% de l'élément est visible
         };
 
-        const nodesObserver = new IntersectionObserver((entries, observer) => {
+        const elementsObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach((entry, index) => {
                 if (entry.isIntersecting) {
-                    // Petit délai en cascade basé sur l'index ou aléatoire
+                    // Petit délai en cascade (stagger effect)
+                    // L'index ici correspond aux éléments qui entrent *en même temps* dans l'écran
                     setTimeout(() => {
                         entry.target.style.opacity = "1";
                         entry.target.style.transform = "translateY(0)";
-                    }, index * 100); // 100ms de délai entre chaque carte
+                    }, index * 200); // 150ms de délai entre chaque carte pour bien voir l'effet
 
                     observer.unobserve(entry.target);
                 }
             });
         }, observerOptions);
 
-        neuralNodes.forEach(node => {
-            // État initial pour l'animation (CSS pourrait aussi le faire)
-            node.style.opacity = "0";
-            node.style.transform = "translateY(20px)";
-            node.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+        animatedElements.forEach(el => {
+            // État initial (Invisible + Décalé vers le bas)
+            el.style.opacity = "0";
+            el.style.transform = "translateY(30px)"; // Un peu plus bas pour un effet plus marqué
             
-            nodesObserver.observe(node);
+            // Transition fluide
+            // cubic-bezier pour un effet plus "organique" et moins robotique
+            el.style.transition = "opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+            
+            elementsObserver.observe(el);
         });
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -396,5 +495,120 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* =================================== */
+    /* EFFET JOYSTICK (3D TILT) - CONTACT  */
+    /* =================================== */
+    
+    const terminalPanel = document.querySelector('.contact-terminal');
+
+    if (terminalPanel) {
+        // Configuration de l'intensité du mouvement
+        const maxRotation = 5; // Degrés maximum de rotation (10 est subtil et classe)
+        
+        // 1. Quand la souris bouge SUR le panneau
+        terminalPanel.addEventListener('mousemove', (e) => {
+            const rect = terminalPanel.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+
+            // Calcul de la position de la souris par rapport au centre (de -1 à 1)
+            // 0 = centre, -1 = gauche/haut, 1 = droite/bas
+            const mouseX = (e.clientX - rect.left) / width - 0.5;
+            const mouseY = (e.clientY - rect.top) / height - 0.5;
+
+            // Calcul de la rotation inversée pour l'effet "Joystick"
+            // Si je vais à droite (mouseX > 0), je tourne sur l'axe Y vers la droite
+            // Si je vais en bas (mouseY > 0), je tourne sur l'axe X vers le bas (négatif pour "tirer")
+            const rotateY = mouseX * maxRotation * 2; // *2 pour amplifier un peu
+            const rotateX = mouseY * maxRotation * -2; // Négatif pour que ça suive la souris naturellement
+
+            // Application du style en temps réel (sans délai)
+            // On ajoute 'perspective' pour l'effet 3D
+            terminalPanel.style.transform = `
+                perspective(1000px) 
+                rotateX(${rotateX}deg) 
+                rotateY(${rotateY}deg) 
+                scale(1.02)
+            `;
+        });
+
+        // 2. Quand la souris QUITTE le panneau (Retour ressort)
+        terminalPanel.addEventListener('mouseleave', () => {
+            // On remet à zéro
+            terminalPanel.style.transform = `
+                perspective(1000px) 
+                rotateX(0deg) 
+                rotateY(0deg) 
+                scale(1)
+            `;
+        });
+
+        // 3. Gestion de la fluidité (Transition)
+        // On veut que ça soit instantané quand on bouge (pas de lag)
+        // Mais que ça revienne doucement quand on sort (effet ressort)
+        terminalPanel.addEventListener('mouseenter', () => {
+            terminalPanel.style.transition = 'none'; // Pas de délai à l'entrée
+        });
+
+        terminalPanel.addEventListener('mouseleave', () => {
+            terminalPanel.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)'; // Effet élastique à la sortie
+        });
+    }
+
+
+
+
+    
+
+
+
+
+
+    /* =================================== */
+    /* AUTO-LOOP : RETOUR EN HAUT (INFINITE) */
+    /* =================================== */
+    
+    let isScrollingUp = false;
+
+    window.addEventListener('scroll', () => {
+        // Calcul pour savoir si on est en bas de page
+        // (Hauteur fenêtre + Scroll actuel) >= Hauteur totale du document - petite marge
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 5) {
+            
+            // Empêche de déclencher l'événement plusieurs fois d'affilée
+            if (!isScrollingUp) {
+                isScrollingUp = true;
+                
+                console.log("Fin de page atteinte. Retour à la base.");
+                
+                // On attend une demi-seconde pour que l'utilisateur voie le bas
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth' // Le scroll sera fluide (animation)
+                    });
+                    
+                    // On libère le verrou après l'animation (disons 2 secondes)
+                    setTimeout(() => { isScrollingUp = false; }, 2000);
+                }, 500);
+            }
+        }
+    });
 
 });

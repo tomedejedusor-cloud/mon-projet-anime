@@ -1669,16 +1669,36 @@
     position: relative;
     width: 100%;
     max-width: 800px;
-    background: rgba(5, 8, 10, 0.9); /* Fond très sombre */
-    border: 1px solid rgba(0, 243, 255, 0.2); /* Bordure subtile */
+    background: rgba(5, 8, 10, 0.9); 
+    border: 1px solid rgba(0, 243, 255, 0.2); 
     padding: 40px;
     margin: 0 auto;
     text-align: center;
     
-    /* Effet de lueur externe */
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(5px);
+
+    /* Permet aux éléments enfants de suivre la 3D */
+    transform-style: preserve-3d;
+    
+    /* Optimisation pour éviter le flou pendant le mouvement */
+    will-change: transform;
+    
+    /* On s'assure que la transition initiale n'est pas bloquée */
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.3s;
 }
+
+
+/* OPTIONNEL : Effet de profondeur sur les éléments internes */
+/* Cela fait flotter le titre légèrement au-dessus du fond */
+.contact-terminal .contact-title,
+.contact-terminal .btn-transmit, 
+.contact-terminal .email-input-line {
+    transform: translateZ(20px); /* Les fait sortir de l'écran de 20px */
+    /* Note : cela ne marche que parce qu'on a mis 'preserve-3d' sur le parent */
+}
+
+
 
 /* --- HEADER (STATUS) --- */
 .terminal-header {
@@ -1703,7 +1723,7 @@
 .status-text {
     font-family: monospace;
     color: var(--hud-cyan);
-    font-size: 0.8rem;
+    font-size: 0.5rem;
     letter-spacing: 2px;
 }
 

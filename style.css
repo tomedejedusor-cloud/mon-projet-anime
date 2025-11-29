@@ -706,7 +706,7 @@ Ne s'applique qu'à la zone 1 et à la zone 2.
     color: var(--grid-gold);
     font-family: sans-serif; /* Remplacez par votre police (ex: 'Rajdhani', 'Orbitron') */
     font-weight: 400;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     letter-spacing: 2px;
     text-transform: uppercase;
     margin: 0;
@@ -926,4 +926,102 @@ Ne s'applique qu'à la zone 1 et à la zone 2.
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =================================== */
+/* STYLE DU FOOTER "CINEMATIQUE"       */
+/* =================================== */
+
+.cinematic-footer {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    
+    /* MODIFICATION DU DÉGRADÉ :
+       1. Départ : #000f16 (Couleur exacte de ton body)
+       2. Transition : On reste sombre jusqu'à 40% (pour ralentir l'effet)
+       3. Arrivée : Le blanc-bleu en bas
+    */
+    background: linear-gradient(to bottom, 
+        #000f16 0%, 
+        #000f16 40%,  /* Reste fondu avec le site sur presque la moitié */
+        #04121b 60%, 
+        #0d2535 80%, 
+        #22465e 90%, 
+        #a0c4d6 100%
+    );
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 50px;
+    overflow: hidden;
+    margin-top: 0;
+}
+
+/* Le texte géant (Ajusté pour le contraste avec le bas blanc-bleu) */
+.footer-bg-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 100; 
+    font-size: 9vw;
+    letter-spacing: 0.3em;
+    margin-right: -0.3em;
+    
+    /* Couleur sombre pour se détacher du bas lumineux, mais fondre dans le haut */
+    color: #6f6d6d; 
+    /* Légère ombre pour le détacher des strates bleues */
+    text-shadow: 0 50px 80px rgba(93, 93, 94, 0.5);
+    
+    opacity: 0.3;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+}
+
+/* Le contenu du bas (Copyright) */
+.footer-bottom-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    font-family: monospace; /* Plus technique */
+    
+    /* Texte sombre car le fond est blanc-bleu en bas */
+    color: #000000; 
+    font-weight: bold;
+}
+
+.copyright {
+    font-size: 1rem;
+    margin-bottom: -5px;
+    text-transform: uppercase;
+}
+
+.tagline {
+    font-size: 0.9rem;
+    opacity: 0.8;
 }
