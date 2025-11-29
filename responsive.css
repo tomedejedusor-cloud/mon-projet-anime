@@ -889,3 +889,25 @@
         font-size: 0.7rem !important;
     }
 }
+
+
+@media (max-width: 768px) {
+
+    .footer-bg-text {
+        /* SUR PC : top est à 45% */
+        /* SUR MOBILE : On le passe à 30% ou 35% pour le remonter */
+        top: 30% !important; 
+        
+        /* On ajuste la taille pour qu'il tienne bien en largeur */
+        font-size: 13vw !important;
+        
+        /* On s'assure qu'il reste centré horizontalement */
+        transform: translate(-50%, -50%) !important;
+    }
+
+    /* Optionnel : Si tu veux aussi donner plus d'air au contenu du bas */
+    .footer-bottom-content {
+        /* Ajoute une marge de sécurité en bas si le texte est trop collé au bord */
+        padding-bottom: 20px !important; 
+    }
+}

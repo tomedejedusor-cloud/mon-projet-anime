@@ -149,11 +149,35 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
 
                     if (type === 'video') {
-                        if(screenImg) screenImg.style.display = 'none';
+                        // --- GESTION VIDÉO OPTIMISÉE ---
+                        
+                        // 1. On affiche l'image de chargement par défaut (pendant le buffering)
+                        if(screenImg) {
+                            screenImg.style.display = 'block';
+                            screenImg.src = 'ref/chargement.png'; // Ton image de fond tactique
+                        }
+
                         if(screenVideo) {
-                            screenVideo.style.display = 'block';
+                            // 2. On prépare la vidéo mais on la cache
+                            screenVideo.style.display = 'none';
+                            screenVideo.pause();
                             screenVideo.src = src;
-                            screenVideo.play();
+                            screenVideo.load(); // Force le début du téléchargement
+
+                            // 3. On attend l'événement "canplaythrough" (prêt à lire sans lag)
+                            // On utilise une fonction unique pour éviter d'empiler les écouteurs
+                            screenVideo.oncanplaythrough = () => {
+                                console.log("Vidéo prête (buffer ok) -> Lecture");
+                                
+                                // Transition : on cache l'image, on montre la vidéo
+                                if(screenImg) screenImg.style.display = 'none';
+                                screenVideo.style.display = 'block';
+                                
+                                screenVideo.play().catch(e => console.error("Erreur lecture auto:", e));
+                                
+                                // Nettoyage de l'écouteur pour ne pas le relancer en boucle
+                                screenVideo.oncanplaythrough = null;
+                            };
                         }
                     } else {
                         if(screenVideo) {
@@ -581,34 +605,36 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     /* =================================== */
-    /* AUTO-LOOP : RETOUR EN HAUT (INFINITE) */
+    /* INFINITE LOOP : TELEPORTATION       */
     /* =================================== */
     
-    let isScrollingUp = false;
+    const loopBuffer = document.getElementById('loop-buffer');
 
-    window.addEventListener('scroll', () => {
-        // Calcul pour savoir si on est en bas de page
-        // (Hauteur fenêtre + Scroll actuel) >= Hauteur totale du document - petite marge
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 5) {
-            
-            // Empêche de déclencher l'événement plusieurs fois d'affilée
-            if (!isScrollingUp) {
-                isScrollingUp = true;
-                
-                console.log("Fin de page atteinte. Retour à la base.");
-                
-                // On attend une demi-seconde pour que l'utilisateur voie le bas
-                setTimeout(() => {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth' // Le scroll sera fluide (animation)
-                    });
+    // On utilise IntersectionObserver pour savoir QUAND on voit le clone
+    if (loopBuffer) {
+        const loopObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Si le clone est visible à plus de 50%
+                if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+                    console.log("Boucle atteinte : Téléportation vers le haut !");
                     
-                    // On libère le verrou après l'animation (disons 2 secondes)
-                    setTimeout(() => { isScrollingUp = false; }, 2000);
-                }, 500);
-            }
-        }
-    });
+                    // 1. On coupe le scroll-snap temporairement pour éviter les saccades
+                    document.documentElement.style.scrollSnapType = 'none';
+
+                    // 2. TÉLÉPORTATION INSTANTANÉE (Sans 'smooth')
+                    window.scrollTo(0, 0);
+
+                    // 3. On remet le scroll-snap après un micro-délai
+                    setTimeout(() => {
+                        document.documentElement.style.scrollSnapType = 'y mandatory';
+                    }, 50);
+                }
+            });
+        }, {
+            threshold: 0.6 // Se déclenche quand 60% du clone est visible
+        });
+
+        loopObserver.observe(loopBuffer);
+    }
 
 });

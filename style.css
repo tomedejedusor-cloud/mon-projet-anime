@@ -297,25 +297,35 @@ Il est plus grand et a un effet de reflet (radial-gradient)
 }
 
 
+
+
+
+
+
+
+
+
+
+
 /* NOUVEAU : Barre de navigation */
 .main-nav {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    background: rgba(10, 10, 10, 0.7); /* Fond sombre semi-transparent */
-    backdrop-filter: blur(5px); /* Effet de flou (navigateurs modernes) */
+    background: rgba(10, 10, 10, 0.7); 
+    backdrop-filter: blur(5px); 
     
-    z-index: 300; /* Au-dessus de tout */
+    z-index: 300;
     
     padding: 8px 0;
-    opacity: 0; /* Commence cachée */
+    opacity: 0; 
 }
 
 .main-nav ul {
     display: flex;
     justify-content: center;
-    flex-wrap: wrap; /* Permet le retour à la ligne sur petits écrans */
+    flex-wrap: wrap; 
     list-style: none;
     margin: 0;
     padding: 0;
@@ -333,8 +343,25 @@ Il est plus grand et a un effet de reflet (radial-gradient)
 }
 
 .main-nav li a:hover {
-    color: #E13C4C; /* Couleur rouge au survol */
+    color: #E13C4C; 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* =================================== */
@@ -1024,4 +1051,69 @@ Ne s'applique qu'à la zone 1 et à la zone 2.
 .tagline {
     font-size: 0.9rem;
     opacity: 0.8;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =================================== */
+/* STYLE DU CLONE (BOUCLE INFINIE)     */
+/* =================================== */
+
+.loop-clone {
+    position: relative;
+    height: 100vh; /* Prend tout l'écran */
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Important pour le scroll snap */
+    scroll-snap-align: start;
+    background: #000;
+}
+
+.clone-video {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0.6; /* Ajuste selon ton opacité originale */
+    z-index: 1;
+}
+
+.clone-text-container {
+    position: relative;
+    z-index: 2;
+    text-align: left;
+    /* On reprend le positionnement approximatif de ton intro */
+    transform: translateX(-50%); 
+    margin-right: 150px; /* Ajustement visuel pour matcher le loader */
+}
+
+.clone-text-container h1 {
+    font-size: 3rem;
+    margin: 0;
+}
+.clone-text-container p {
+    font-size: 1.2rem;
+    color: #E13C4C;
 }

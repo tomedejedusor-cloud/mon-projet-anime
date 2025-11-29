@@ -86,17 +86,48 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.z = 77;
 
+// const renderer = new THREE.WebGLRenderer({
+//     canvas: canvas,
+//     alpha: true,
+//     antialias: true
+// });
+// renderer.setSize(window.innerWidth, window.innerHeight);
+
+// const pixelRatio = window.innerWidth < 768 ? 1 : Math.min(window.devicePixelRatio, 1.5);
+// renderer.setPixelRatio(pixelRatio);
+// const isMobile = window.innerWidth < 768;
+// renderer.antialias = !isMobile;
+
+
+/* ========================================= */
+/* OPTIMISATION 1 : QUALITÉ DU RENDU         */
+/* ========================================= */
+
+// Détection mobile un peu plus large (tablettes incluses)
+const isMobile = window.innerWidth < 1024; 
+
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
     alpha: true,
-    antialias: true
+    // Désactiver l'antialias sur mobile gagne énormément de FPS
+    antialias: !isMobile, 
+    // Indique au navigateur de privilégier la performance
+    powerPreference: "high-performance",
+    // Désactive le buffer de profondeur logarithmique si non nécessaire (gagne un peu de perf)
+    logarithmicDepthBuffer: false 
 });
+
 renderer.setSize(window.innerWidth, window.innerHeight);
-// renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-const pixelRatio = window.innerWidth < 768 ? 1 : Math.min(window.devicePixelRatio, 2);
-renderer.setPixelRatio(pixelRatio);
-const isMobile = window.innerWidth < 768;
-renderer.antialias = !isMobile;
+
+// BRIDAGE DU PIXEL RATIO
+// On limite à 1.5 sur PC (suffisant visuellement) et 1 sur mobile.
+// Au-delà de 1.5 ou 2, la différence est invisible mais le calcul explose.
+const targetPixelRatio = isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5);
+renderer.setPixelRatio(targetPixelRatio);
+
+
+
+
 
 // --- Rendu 2 : CSS3D (Pour le HUD HTML) ---
 let cssRenderer;
@@ -542,6 +573,7 @@ function updateModelOnScroll(scrollPercent) {
         // --- ÉTAPE 9 : ... (Z9 -> Z10) ---
         const etape9_Percent = (scrollPercent - seuil_Etape8_fin) / (seuil_Etape9_fin - seuil_Etape8_fin);
         hoverAction.weight = 0;
+        camera.position.z = zoomFinal;
         javelinModel.position.y = positionY_Final;
         exposedAction.weight = etape9_Percent;
         loaderText.style.display = 'none';
@@ -551,6 +583,7 @@ function updateModelOnScroll(scrollPercent) {
         // --- ÉTAPE 10 : ... (Z10 -> Z11) ---
         const etape10_Percent = (scrollPercent - seuil_Etape9_fin) / (seuil_Etape10_fin - seuil_Etape9_fin);
         hoverAction.weight = 0;
+        camera.position.z = zoomFinal;
         javelinModel.position.y = positionY_Final;
         exposedAction.weight = 1-etape10_Percent;
         loaderText.style.display = 'none';
@@ -599,6 +632,14 @@ function onScroll() {
     }
 }
 window.addEventListener('scroll', onScroll);
+// FORCE LE DRONE À RÉAPPARAÎTRE APRÈS LA TÉLÉPORTATION
+window.addEventListener('scroll', () => {
+    if (window.scrollY < 10 && javelinModel) {
+        javelinModel.visible = true;
+        // On force la mise à jour visuelle pour éviter le clignotement
+        updateModelOnScroll(0);
+    }
+});
 // --- FIN OPTIMISATION SCROLL ---
 
 
