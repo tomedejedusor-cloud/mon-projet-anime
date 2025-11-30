@@ -707,11 +707,19 @@ window.addEventListener('resize', () => {
     
     // Définit un nouveau timeout
     resizeTimeout = setTimeout(() => {
-        const width = window.innerWidth;
+        // const width = window.innerWidth;
+        // const height = window.innerHeight;
+        // renderer.setSize(width, height);
+
+        const width = document.documentElement.clientWidth;
         const height = window.innerHeight;
 
-        // Rendu 1 (WebGL)
+        const isMobileNow = width < 1024;
+        const newRatio = isMobileNow ? Math.min(window.devicePixelRatio, 2) : Math.max(window.devicePixelRatio, 2);
+
+        // Mise à jour WebGL
         renderer.setSize(width, height);
+        renderer.setPixelRatio(newRatio);
         
         // Rendu 2 (CSS)
         if (cssRenderer) {
