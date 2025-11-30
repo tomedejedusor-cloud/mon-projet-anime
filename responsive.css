@@ -162,7 +162,9 @@
         display: block !important;
     }
 
-
+    .grid-cross {
+        transform: translate(-50%, 0px); 
+    }
     
 
 

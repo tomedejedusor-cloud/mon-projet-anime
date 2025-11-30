@@ -104,26 +104,18 @@ camera.position.z = 77;
 /* ========================================= */
 
 // Détection mobile un peu plus large (tablettes incluses)
-const isMobile = window.innerWidth < 1024; 
+
 
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
     alpha: true,
-    // Désactiver l'antialias sur mobile gagne énormément de FPS
-    antialias: !isMobile, 
-    // Indique au navigateur de privilégier la performance
+    antialias: false, // DÉSACTIVÉ pour tous (gain majeur de FPS)
     powerPreference: "high-performance",
-    // Désactive le buffer de profondeur logarithmique si non nécessaire (gagne un peu de perf)
-    logarithmicDepthBuffer: false 
+    precision: "mediump" // Force une précision moyenne (suffisant et plus rapide)
 });
 
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-// BRIDAGE DU PIXEL RATIO
-// On limite à 1.5 sur PC (suffisant visuellement) et 1 sur mobile.
-// Au-delà de 1.5 ou 2, la différence est invisible mais le calcul explose.
-const targetPixelRatio = isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5);
-renderer.setPixelRatio(targetPixelRatio);
+// Forcer le ratio de pixels à 1 maximum (évite le calcul x2 sur les écrans Retina/4K)
+renderer.setPixelRatio(1.3);
 
 
 
@@ -476,6 +468,7 @@ function updateModelOnScroll(scrollPercent) {
             }
         }
 
+        javelinModel.visible = true;
         camera.position.z = zoomInitial + (zoomStep * etape1_Percent);
         javelinModel.position.y = positionY_Initial;
         javelinModel.rotation.x = rotationX_Initial;
@@ -485,7 +478,8 @@ function updateModelOnScroll(scrollPercent) {
 
         
     } else if (scrollPercent <= seuil_Etape2_fin) {
-        // --- ÉTAPE 2 : DÉPLACEMENT Y (Z2 -> Z3) ---
+        // --- ÉTAPE 2 :  (Z2 -> Z3) ---
+        javelinModel.visible = true;
         const etape2_Percent = (scrollPercent - seuil_Etape1_fin) / (seuil_Etape2_fin - seuil_Etape1_fin);
         camera.position.z = (zoomInitial + zoomStep) + (zoomStep * etape2_Percent);
         javelinModel.position.y = positionY_Initial;
@@ -497,7 +491,8 @@ function updateModelOnScroll(scrollPercent) {
 
 
     } else if (scrollPercent <= seuil_Etape3_fin) {
-        // --- ÉTAPE 3 : ROTATION X (Z3 -> Z4) ---
+        // --- ÉTAPE 3 :  (Z3 -> Z4) ---
+        javelinModel.visible = true;
         const etape3_Percent = (scrollPercent - seuil_Etape2_fin) / (seuil_Etape3_fin - seuil_Etape2_fin);
         camera.position.z = (zoomInitial + zoomStep * 2) + (zoomStep * etape3_Percent);
         javelinModel.position.y = positionY_Initial;
@@ -509,7 +504,8 @@ function updateModelOnScroll(scrollPercent) {
 
         
     } else if (scrollPercent <= seuil_Etape4_fin) {
-        // --- ÉTAPE 4 : ANIMATION "HOVER" (Z4 -> Z5) ---
+        // --- ÉTAPE 4 :  (Z4 -> Z5) ---
+        javelinModel.visible = true;
         const etape4_Percent = (scrollPercent - seuil_Etape3_fin) / (seuil_Etape4_fin - seuil_Etape3_fin);
         camera.position.z = zoomFinal;
         javelinModel.position.y = positionY_Initial + (positionY_Final - positionY_Initial) * etape4_Percent;
@@ -521,26 +517,26 @@ function updateModelOnScroll(scrollPercent) {
 
 
     } else if (scrollPercent <= seuil_Etape5_fin) {
-        // --- ÉTAPE 5 : ANIMATION "HOVER" (Z5 -> Z6) ---
+        // --- ÉTAPE 5 :  (Z5 -> Z6) ---
+        javelinModel.visible = false;
         const etape5_Percent = (scrollPercent - seuil_Etape4_fin) / (seuil_Etape5_fin - seuil_Etape4_fin);        
         camera.position.z = zoomFinal;
-        javelinModel.position.y = positionY_Final;
-        javelinModel.rotation.x = rotationX_Initial + (rotationX_Final/2 - rotationX_Initial) * etape5_Percent;
-        javelinModel.rotation.y = rotationY_Initial + (rotationY_Final/2 - rotationY_Initial) * etape5_Percent;
+        javelinModel.position.y = 300
+        javelinModel.rotation.x = rotationX_Initial;
+        javelinModel.rotation.y = rotationY_Initial;
         hoverAction.weight = 0;
         exposedAction.weight = 0;
         loaderText.style.display = 'none';
 
 
     } else if (scrollPercent <= seuil_Etape6_fin){
-        // --- ÉTAPE 6 : ANIMATION "EXPOSED VIEW" (Z6 -> Z7) ---
+        // --- ÉTAPE 6 : (Z6 -> Z7) ---
+        javelinModel.visible = false;
         const etape6_Percent = (scrollPercent - seuil_Etape5_fin) / (seuil_Etape6_fin - seuil_Etape5_fin);
         camera.position.z = zoomFinal;
-        javelinModel.position.y = positionY_Final;
-        javelinModel.rotation.x = rotationX_Initial + (rotationX_Final - rotationX_Initial) * etape6_Percent;
-        javelinModel.rotation.y = rotationY_Initial + (rotationY_Final - rotationY_Initial) * etape6_Percent;
-        // javelinModel.rotation.x = rotationX_Final;
-        // javelinModel.rotation.y = rotationY_Final;
+        javelinModel.position.y = 300;
+        javelinModel.rotation.x = rotationX_Initial;
+        javelinModel.rotation.y = rotationY_Initial;
         hoverAction.weight = 0;
         exposedAction.weight = 0;
         loaderText.style.display = 'none';
@@ -548,29 +544,33 @@ function updateModelOnScroll(scrollPercent) {
 
     } else if (scrollPercent <= seuil_Etape7_fin){
         // --- ÉTAPE 7 : ... (Z7 -> Z8) ---
+        javelinModel.visible = false;
         const etape7_Percent = (scrollPercent - seuil_Etape6_fin) / (seuil_Etape7_fin - seuil_Etape6_fin);
         camera.position.z = zoomFinal;
+        javelinModel.position.y = 300;
         javelinModel.rotation.x = rotationX_Final;
         javelinModel.rotation.y = rotationY_Final;
-        hoverAction.weight = etape7_Percent;
+        hoverAction.weight = 0;
         exposedAction.weight = 0;
         loaderText.style.display = 'none';
 
 
     }else if(scrollPercent <= seuil_Etape8_fin){
         // --- ÉTAPE 8 : ... (Z8 -> Z9) ---
+        javelinModel.visible = false;
         const etape8_Percent = (scrollPercent - seuil_Etape7_fin) / (seuil_Etape8_fin - seuil_Etape7_fin);
         camera.position.z = zoomFinal;
-        javelinModel.position.y = positionY_Final;
+        javelinModel.position.y = 300;
         javelinModel.rotation.x = rotationX_Final;
         javelinModel.rotation.y = rotationY_Final;
-        hoverAction.weight = 1-etape8_Percent;
+        hoverAction.weight = 0;
         exposedAction.weight = 0;
         loaderText.style.display = 'none';
 
 
     }else if(scrollPercent <= seuil_Etape9_fin){
         // --- ÉTAPE 9 : ... (Z9 -> Z10) ---
+        javelinModel.visible = true;
         const etape9_Percent = (scrollPercent - seuil_Etape8_fin) / (seuil_Etape9_fin - seuil_Etape8_fin);
         hoverAction.weight = 0;
         camera.position.z = zoomFinal;
@@ -581,6 +581,7 @@ function updateModelOnScroll(scrollPercent) {
 
     }else if(scrollPercent <= seuil_Etape10_fin){
         // --- ÉTAPE 10 : ... (Z10 -> Z11) ---
+        javelinModel.visible = true;
         const etape10_Percent = (scrollPercent - seuil_Etape9_fin) / (seuil_Etape10_fin - seuil_Etape9_fin);
         hoverAction.weight = 0;
         camera.position.z = zoomFinal;
@@ -591,6 +592,7 @@ function updateModelOnScroll(scrollPercent) {
 
     }else if(scrollPercent <= seuil_Etape11_fin){
         // --- ÉTAPE 11 : ... (Z11 -> Z12) ---
+        javelinModel.visible = true;
         const etape11_Percent = (scrollPercent - seuil_Etape10_fin) / (seuil_Etape11_fin - seuil_Etape10_fin);
         hoverAction.weight = 0;
         exposedAction.weight = 0;

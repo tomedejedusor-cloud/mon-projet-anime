@@ -460,7 +460,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     setTimeout(() => {
                         entry.target.style.opacity = "1";
                         entry.target.style.transform = "translateY(0)";
-                    }, index * 200); // 150ms de délai entre chaque carte pour bien voir l'effet
+                    }, index * 150); // 150ms de délai entre chaque carte pour bien voir l'effet
 
                     observer.unobserve(entry.target);
                 }
