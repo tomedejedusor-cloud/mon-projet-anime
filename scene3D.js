@@ -714,8 +714,8 @@ window.addEventListener('resize', () => {
         const width = document.documentElement.clientWidth;
         const height = window.innerHeight;
 
-        const isMobileNow = width < 1024;
-        const newRatio = isMobileNow ? Math.min(window.devicePixelRatio, 2) : Math.max(window.devicePixelRatio, 2);
+        const isMobileNow = width < 800;
+        const newRatio = isMobileNow ? 2 : 5;
 
         // Mise à jour WebGL
         renderer.setSize(width, height);
