@@ -89,11 +89,14 @@ camera.position.z = 77;
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
     alpha: true,
-    antialias: true
+    // antialias: true
+    antialias: false, // DÉSACTIVÉ pour tous (gain majeur de FPS)
+    powerPreference: "high-performance",
+    precision: "mediump"  
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
-const pixelRatio = window.innerWidth < 768 ? 1 : Math.min(window.devicePixelRatio, 1.5);
+const pixelRatio = window.innerWidth < 768 ? 0.8 : Math.min(window.devicePixelRatio, 1.2);
 renderer.setPixelRatio(pixelRatio);
 const isMobile = window.innerWidth < 768;
 renderer.antialias = !isMobile;
